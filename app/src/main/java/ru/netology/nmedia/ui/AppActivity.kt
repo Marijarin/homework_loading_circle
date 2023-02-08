@@ -12,7 +12,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
             100.25F,
             100.25F,
             100.25F,
-            100.25F,
+            0F
         )
     }
 }
