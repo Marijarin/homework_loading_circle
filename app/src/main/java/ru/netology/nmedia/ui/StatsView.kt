@@ -45,6 +45,7 @@ class StatsView @JvmOverloads constructor(
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
     }
+
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         textAlign = Paint.Align.CENTER
@@ -53,7 +54,9 @@ class StatsView @JvmOverloads constructor(
 
     var data: List<Float> = emptyList()
         set(value) {
-            field = value.map { item -> item/value.sum() }
+            field = if (value.max() > 0F) {
+                value.map { item -> (item / (value.max() * value.size)) }
+            } else value
             invalidate()
         }
 
@@ -67,9 +70,11 @@ class StatsView @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
-        if (data.isEmpty()) {
+        if (data.isEmpty() || data.size < 4) {
             return
         }
+        paint.color = colors.getOrNull(4) ?: randomColor()
+        canvas.drawCircle(center.x, center.y, radius, paint)
 
         var startFrom = -90F
         for ((index, datum) in data.withIndex()) {
@@ -78,8 +83,8 @@ class StatsView @JvmOverloads constructor(
             canvas.drawArc(oval, startFrom, angle, false, paint)
             startFrom += angle
         }
-        paint.color =  colors.getOrNull(0) ?: randomColor()
-        canvas.drawPoint(center.x, -radius + center.y, paint )
+        paint.color = colors.getOrNull(0) ?: randomColor()
+        canvas.drawPoint(center.x, -radius + center.y, paint)
 
         canvas.drawText(
             "%.2f%%".format(data.sum() * 100),
